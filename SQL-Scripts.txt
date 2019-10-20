@@ -1,0 +1,139 @@
+USE bottega_school_project;
+
+INSERT INTO students(student_name)
+VALUES("James");
+INSERT INTO students(student_name)
+VALUES("Amy");
+INSERT INTO students(student_name)
+VALUES("Tina");
+INSERT INTO students(student_name)
+VALUES("Steve");
+INSERT INTO students(student_name)
+VALUES("Adam");
+
+INSERT INTO professors(professor_name)
+VALUES("Adams");
+INSERT INTO professors(professor_name)
+VALUES("Jones");
+INSERT INTO professors(professor_name)
+VALUES("Irks");
+INSERT INTO professors(professor_name)
+VALUES("Neilson");
+
+INSERT INTO courses(course_name, professor_id)
+VALUES("Math", (SELECT professor_id FROM professors WHERE professor_name = "Adams"));
+INSERT INTO courses(course_name, professor_id)
+VALUES("Science", (SELECT professor_id FROM professors WHERE professor_name = "Jones"));
+INSERT INTO courses(course_name, professor_id)
+VALUES("English", (SELECT professor_id FROM professors WHERE professor_name = "Irks"));
+INSERT INTO courses(course_name, professor_id)
+VALUES("Music", (SELECT professor_id FROM professors WHERE professor_name = "Neilson"));
+INSERT INTO courses(course_name, professor_id)
+VALUES("Geometry", (SELECT professor_id FROM professors WHERE professor_name = "Adams"));
+
+INSERT INTO student_courses(student_id, course_id)
+VALUES(1, 1);
+INSERT INTO student_courses(student_id, course_id)
+VALUES(2, 1);
+INSERT INTO student_courses(student_id, course_id)
+VALUES(3, 1);
+INSERT INTO student_courses(student_id, course_id)
+VALUES(4, 1);
+INSERT INTO student_courses(student_id, course_id)
+VALUES(1, 2);
+INSERT INTO student_courses(student_id, course_id)
+VALUES(2, 2);
+INSERT INTO student_courses(student_id, course_id)
+VALUES(3, 3);
+INSERT INTO student_courses(student_id, course_id)
+VALUES(4, 3);
+INSERT INTO student_courses(student_id, course_id)
+VALUES(1, 4);
+INSERT INTO student_courses(student_id, course_id)
+VALUES(2, 4);
+INSERT INTO student_courses(student_id, course_id)
+VALUES(3, 5);
+INSERT INTO student_courses(student_id, course_id)
+VALUES(2, 5);
+
+INSERT INTO grades(student_grade_id, course_grade_id, grade)
+VALUES(1, 1, 80);
+INSERT INTO grades(student_grade_id, course_grade_id, grade)
+VALUES(2, 1, 50);
+INSERT INTO grades(student_grade_id, course_grade_id, grade)
+VALUES(3, 1, 73);
+INSERT INTO grades(student_grade_id, course_grade_id, grade)
+VALUES(4, 1, 99);
+INSERT INTO grades(student_grade_id, course_grade_id, grade)
+VALUES(1, 2, 98);
+INSERT INTO grades(student_grade_id, course_grade_id, grade)
+VALUES(2, 2, 83);
+INSERT INTO grades(student_grade_id, course_grade_id, grade)
+VALUES(3, 3, 77);
+INSERT INTO grades(student_grade_id, course_grade_id, grade)
+VALUES(4, 3, 88);
+INSERT INTO grades(student_grade_id, course_grade_id, grade)
+VALUES(1, 4, 90);
+INSERT INTO grades(student_grade_id, course_grade_id, grade)
+VALUES(2, 4, 68);
+INSERT INTO grades(student_grade_id, course_grade_id, grade)
+VALUES(3, 5, 40);
+INSERT INTO grades(student_grade_id, course_grade_id, grade)
+VALUES(2, 5, 77);
+
+-- Group students by courses
+
+select student_name, course_name, grade 
+from student_courses
+join students
+on student_courses.student_id = students.student_id
+join courses
+on student_courses.course_id = courses.course_id
+join grades
+on students.student_id = grades.student_grade_id
+order by courses.course_name DESC;
+
+-- Average grade by professor 
+
+select professor_name, course_name, avg(grade)
+from professors
+join courses
+on courses.professor_id = professors.professor_id
+join grades
+on courses.course_id = grades.course_grade_id
+group by course_name;
+
+-- Top grades by each student
+
+select  student_name, course_name, MAX(grade)
+from students
+join student_courses
+on students.student_id = student_courses.student_id
+join grades
+on students.student_id = grades.student_grade_id
+join courses
+on grades.course_grade_id = courses.course_id
+group by student_name;
+
+-- Summary of Average grade by course ordered by most difficult
+
+select course_name, AVG(grade)
+from courses
+join grades
+on courses.course_id = grades.course_grade_id
+group by course_name
+order by AVG(grade) ASC;
+
+
+-- Most Common Student/Professor
+
+select count(*), student_name, professor_name
+from students
+join student_courses
+on students.student_id = student_courses.student_id
+join courses
+on student_courses.course_id = courses.course_id
+join professors
+on courses.professor_id = professors.professor_id
+group by student_name, professor_name
+order by count(*) desc;
